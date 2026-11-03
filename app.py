@@ -58,10 +58,10 @@ if username_input == USERNAME_BENAR and password_input == PASSWORD_BENAR:
                             f"Pertanyaan Pengguna: {pertanyaan}"
                         )
                         
-                           response = client.models.generate_content(
+                        response = client.models.generate_content(
                                 model="gemini-2.5-flash",
                                 contents=prompt_sistem
-                            )
+                        )
                       
                         st.subheader("Hasil Analisis AI:")
                         st.success("Jawaban ditemukan!")
