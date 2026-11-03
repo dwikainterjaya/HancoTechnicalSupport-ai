@@ -5,15 +5,16 @@ import pypdf
 # 1. Konfigurasi Halaman Web
 st.set_page_config(page_title="Hanco Inverter Support", page_icon="🤖")
 
-st.title("🤖 Hanco Inverter AI Technical Support")
-st.write("Aplikasi cerdas untuk membaca manual book Inverter Hanco Seri S18 secara otomatis.")
+# 2. SISTEM LOGIN (Username & Password)
+# Anda bisa mengganti 'admin' dan 'hanco123' sesuai keinginan Anda
+USERNAME_BENAR = "admin"
+PASSWORD_BENAR = "hanco123"
 
-# 2. Pengamanan API Key (Penting agar kuota Anda tidak dicuri orang lain)
-st.sidebar.header("Konfigurasi Akses")
-user_api_key = st.sidebar.text_input("Masukkan Gemini API Key Anda:", type="password")
-st.sidebar.markdown("[Dapatkan API Key Gratis di Sini](https://google.com)")
+st.sidebar.header("🔑 Login Sistem")
+username_input = st.sidebar.text_input("Username:")
+password_input = st.sidebar.text_input("Password:", type="password")
 
-# 3. Fungsi Ekstraksi PDF
+# Fungsi Ekstraksi PDF
 @st.cache_resource
 def ekstrak_teks_pdf(nama_file):
     try:
@@ -29,35 +30,48 @@ def ekstrak_teks_pdf(nama_file):
 # Membaca file PDF lokal
 referensi_manual = ekstrak_teks_pdf("S18 user manual.pdf")
 
-# 4. Form Pertanyaan
-pertanyaan = st.text_input("Ketik pertanyaan Anda di sini (Contoh: Apa arti error E-01?):")
+# 3. Validasi Login
+if username_input == USERNAME_BENAR and password_input == PASSWORD_BENAR:
+    st.sidebar.success("Login Berhasil!")
+    
+    # Tampilan Utama Aplikasi setelah login sukses
+    st.title("🤖 Hanco Inverter AI Technical Support")
+    st.write("Aplikasi cerdas untuk membaca manual book Inverter Hanco Seri S18 secara otomatis.")
 
-if st.button("Tanya AI Technical Support"):
-    if not user_api_key:
-        st.warning("Silakan masukkan Gemini API Key Anda di panel sebelah kiri terlebih dahulu!")
-    elif not pertanyaan:
-        st.warning("Silakan ketik pertanyaan Anda terlebih dahulu!")
-    else:
-        if referensi_manual:
-            with st.spinner("AI sedang menganalisis manual book..."):
-                try:
-                    # Inisialisasi client berdasarkan API Key yang diinput user website
-                    client = genai.Client(api_key=user_api_key)
-                    
-                    prompt_sistem = (
-                        f"Anda adalah asisten ahli teknis. Jawablah pertanyaan pengguna hanya berdasarkan "
-                        f"informasi resmi dari dokumen manual book inverter Hanco berikut:\n\n{referensi_manual}\n\n"
-                        f"Pertanyaan Pengguna: {pertanyaan}"
-                    )
-                    
-                    response = client.models.generate_content(
-                        model="gemini-3.8-flash",
-                        contents=prompt_sistem
-                    )
-                    
-                    st.subheader("Hasil Analisis AI:")
-                    st.success("Jawaban ditemukan!")
-                    st.markdown(response.text)
-                    
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan saat menghubungi AI: {e}\nPastikan API Key Anda benar.")
+    # Form Pertanyaan
+    pertanyaan = st.text_input("Ketik pertanyaan Anda di sini (Contoh: Apa arti error E-01?):")
+
+    if st.button("Tanya AI Technical Support"):
+        if not pertanyaan:
+            st.warning("Silakan ketik pertanyaan Anda terlebih dahulu!")
+        else:
+            if referensi_manual:
+                with st.spinner("AI sedang menganalisis manual book..."):
+                    try:
+                        # Mengambil API Key secara otomatis dari Streamlit Secrets yang sudah disimpan di Langkah 1
+                        api_key_rahasia = st.secrets["GEMINI_API_KEY"]
+                        client = genai.Client(api_key=api_key_rahasia)
+                        
+                        prompt_sistem = (
+                            f"Anda adalah asisten ahli teknis. Jawablah pertanyaan pengguna hanya berdasarkan "
+                            f"informasi resmi dari dokumen manual book inverter Hanco berikut:\n\n{referensi_manual}\n\n"
+                            f"Pertanyaan Pengguna: {pertanyaan}"
+                        )
+                        
+                        response = client.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=prompt_sistem
+                        )
+                        
+                        st.subheader("Hasil Analisis AI:")
+                        st.success("Jawaban ditemukan!")
+                        st.markdown(response.text)
+                        
+                    except Exception as e:
+                        st.error(f"Terjadi kesalahan sistem: {e}")
+else:
+    # Tampilan jika belum login atau salah password
+    st.title("🤖 Hanco Inverter AI Technical Support")
+    st.info("Silakan masukkan Username dan Password yang benar pada panel di sebelah kiri untuk mengakses AI Support.")
+    if username_input or password_input:
+        st.sidebar.error("Username atau Password salah!")
