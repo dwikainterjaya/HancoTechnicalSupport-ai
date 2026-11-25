@@ -31,7 +31,7 @@ if username_input == USERNAME_BENAR and password_input == PASSWORD_BENAR:
     st.sidebar.success("Login Berhasil!")
     
     st.title("🤖 Hanco Inverter AI Technical Support")
-    st.write("Aplikasi cerdas multi-model untuk membaca manual book Inverter Hanco otomatis.")
+    st.write("Asisten teknisi cerdas multi-model yang selalu siap membantu dalam Instalasi, Konfigurasi Parameter dan Troubleshooting.")
 
     # FITUR BARU: PILIHAN MODEL INVERTER
     tipe_inverter = st.selectbox(
